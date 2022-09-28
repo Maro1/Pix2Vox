@@ -74,7 +74,10 @@ def main():
         train_net(cfg)
     else:
         if 'WEIGHTS' in cfg.CONST and os.path.exists(cfg.CONST.WEIGHTS):
-            test_net(cfg)
+            out_dir = os.path.join(cfg.DIR.OUT_PATH, '%s', dt.now().isoformat())
+            log_dir = out_dir % 'logs'
+            writer = SummaryWriter(os.path.join(log_dir, 'test'))
+            test_net(cfg, output_dir=out_dir, test_writer=writer)
         else:
             print('[FATAL] %s Please specify the file path of checkpoint.' % (dt.now()))
             sys.exit(2)
