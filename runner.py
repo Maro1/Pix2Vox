@@ -19,6 +19,9 @@ from pprint import pprint
 from config import cfg
 from core.train import train_net
 from core.test import test_net
+from core.custom_test import custom_test_net
+
+from tensorboardX import SummaryWriter
 
 
 def get_args_from_command_line():
@@ -30,6 +33,7 @@ def get_args_from_command_line():
                         type=str)
     parser.add_argument('--rand', dest='randomize', help='Randomize (do not use a fixed seed)', action='store_true')
     parser.add_argument('--test', dest='test', help='Test neural networks', action='store_true')
+    parser.add_argument('--custom-test', dest='custom_test', help='Custom test neural networks', action='store_true')
     parser.add_argument('--batch-size',
                         dest='batch_size',
                         help='name of the net',
@@ -70,7 +74,12 @@ def main():
         os.environ["CUDA_VISIBLE_DEVICES"] = cfg.CONST.DEVICE
 
     # Start train/test process
-    if not args.test:
+    if args.custom_test:
+        out_dir = os.path.join(cfg.DIR.OUT_PATH, '%s', dt.now().isoformat())
+        log_dir = out_dir % 'logs'
+        writer = SummaryWriter(os.path.join(log_dir, 'test'))
+        custom_test_net(cfg, output_dir=out_dir, test_writer=writer)
+    elif not args.test:
         train_net(cfg)
     else:
         if 'WEIGHTS' in cfg.CONST and os.path.exists(cfg.CONST.WEIGHTS):
